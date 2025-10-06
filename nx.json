@@ -1,0 +1,19 @@
+{
+  "npmScope": "polyforge",
+  "implicitDependencies": {},
+  "tasksRunnerOptions": {
+    "default": {
+      "runner": "nx/tasks-runners/default",
+      "options": {
+        "cacheableOperations": ["build", "serve", "test", "lint"]
+      }
+    }
+  },
+  "projects": {
+    "order-service": {},
+    "catalog-service": {},
+    "inventory-service": {},
+    "recommendation-service": {},
+    "kong": {}
+  }
+}

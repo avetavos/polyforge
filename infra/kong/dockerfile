@@ -1,0 +1,25 @@
+FROM kong:3
+
+USER root
+
+RUN apt-get update && apt-get install -y \
+    git \
+    unzip \
+    build-essential \
+    libssl-dev \
+    wget \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN luarocks install lua-resty-jwt && \
+    luarocks install lua-resty-http && \
+    luarocks install lua-resty-openidc
+
+RUN git clone https://github.com/revomatico/kong-oidc.git /tmp/kong-oidc && \
+    cd /tmp/kong-oidc && \
+    luarocks make
+
+COPY plugins/roles-checker /usr/local/share/lua/5.1/kong/plugins/roles-checker
+
+RUN rm -rf /tmp/kong-oidc
+
+USER kong
