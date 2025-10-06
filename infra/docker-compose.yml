@@ -1,3 +1,4 @@
+name: polyforge-infrastructure
 services:
   order_database:
     image: postgres:15
@@ -121,25 +122,21 @@ services:
       kong-migrations:
         condition: service_completed_successfully
 
-  # order-service:
-  #   build: ./services/order-service
-  #   ports: ["8000"]
-  #   depends_on: [order_database, kafka, redis]
+  inventory-service:
+    image: polyforge-inventory:1.0
+    depends_on: [inventory_database, rabbitmq, redis]
 
-  # catalog-service:
-  #   build: ./services/catalog-service
-  #   ports: ["3000"]
-  #   depends_on: [catalog_database, redis, kafka]
+  recommendation-service:
+    image: polyforge-recommendation:1.0
+    depends_on: [recommendation_database, rabbitmq, redis]
 
-  # inventory-service:
-  #   build: ./services/inventory-service
-  #   ports: ["4000"]
-  #   depends_on: [inventory_database, kafka, redis]
+  catalog-service:
+    image: polyforge-catalog:1.0
+    depends_on: [catalog_database, rabbitmq, redis]
 
-  # recommendation-service:
-  #   build: ./services/recommendation-service
-  #   ports: ["5000"]
-  #   depends_on: [recommendation_database, kafka, redis]
+  order-service:
+    image: polyforge-order:1.0
+    depends_on: [order_database, rabbitmq, redis]
 
 volumes:
   order_data:
