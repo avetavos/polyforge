@@ -1,6 +1,18 @@
 {
+  "version": 2,
   "npmScope": "polyforge",
-  "implicitDependencies": {},
+  "targetDefaults": {
+    "build": {
+      "cache": true
+    },
+    "serve": {
+      "cache": false
+    }
+  },
+  "defaultBase": "main",
+  "cli": {
+    "packageManager": "npm"
+  },
   "tasksRunnerOptions": {
     "default": {
       "runner": "nx/tasks-runners/default",
@@ -8,12 +20,5 @@
         "cacheableOperations": ["build", "serve", "test", "lint"]
       }
     }
-  },
-  "projects": {
-    "order-service": {},
-    "catalog-service": {},
-    "inventory-service": {},
-    "recommendation-service": {},
-    "kong": {}
   }
 }

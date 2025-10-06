@@ -1,0 +1,35 @@
+{
+  "name": "catalog-service",
+  "root": "services/catalog-service",
+  "sourceRoot": "services/catalog-service/src",
+  "targets": {
+    "build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "docker build -t polyforge-catalog:1.0 .",
+        "cwd": "services/catalog-service"
+      }
+    },
+    "build-native": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "cargo build --release",
+        "cwd": "services/catalog-service"
+      }
+    },
+    "serve": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "cargo run",
+        "cwd": "services/catalog-service"
+      }
+    },
+    "serve-docker": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "docker run -p 3000:8000 polyforge-catalog:1.0"
+      }
+    }
+  },
+  "tags": ["service", "rust", "axum"]
+}

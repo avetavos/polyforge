@@ -1,0 +1,35 @@
+{
+  "name": "inventory-service",
+  "root": "services/inventory-service",
+  "sourceRoot": "services/inventory-service/src",
+  "targets": {
+    "build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "docker build -t polyforge-inventory:1.0 .",
+        "cwd": "services/inventory-service"
+      }
+    },
+    "build-native": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "npm run build",
+        "cwd": "services/inventory-service"
+      }
+    },
+    "serve": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "npm run start:dev",
+        "cwd": "services/inventory-service"
+      }
+    },
+    "serve-docker": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "docker run -p 4000:4000 polyforge-inventory:1.0"
+      }
+    }
+  },
+  "tags": ["service", "nodejs", "nestjs"]
+}
