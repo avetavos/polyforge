@@ -1,0 +1,36 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model InventoryItem {
+  sku       String    @id
+  available Int       @default(0)
+  reserved  Int       @default(0)
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  @@map("inventory_items")
+}
+
+model InventoryLogs{
+  id         String    @id @default(uuid())
+  sku        String
+  type       InventoryTransactionType
+  quantity   Int
+  userId     String    @map("user_id")
+  createdAt  DateTime  @default(now()) @map("created_at")
+
+  @@map("inventory_logs")
+}
+
+enum InventoryTransactionType {
+  CREATE
+  UPDATE
+  DELETE
+}
