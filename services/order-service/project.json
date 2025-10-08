@@ -22,6 +22,36 @@
       "options": {
         "command": "docker run -p 8000:8000 polyforge-order:1.0"
       }
+    },
+    "migrate": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "alembic upgrade head",
+        "cwd": "services/order-service",
+        "env": {
+          "DATABASE_URL": ""
+        }
+      }
+    },
+    "migrate-generate": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "alembic revision --autogenerate -m 'Auto migration'",
+        "cwd": "services/order-service",
+        "env": {
+          "DATABASE_URL": ""
+        }
+      }
+    },
+    "migrate-rollback": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "alembic downgrade -1",
+        "cwd": "services/order-service",
+        "env": {
+          "DATABASE_URL": ""
+        }
+      }
     }
   },
   "tags": ["service", "python", "fastapi"]

@@ -124,6 +124,8 @@ services:
 
   inventory-service:
     image: polyforge-inventory:1.0
+    environment:
+      DATABASE_URL: postgresql://${INVENTORY_DB_USER}:${INVENTORY_DB_PASSWORD}@inventory_database:5432/${INVENTORY_DB_NAME}
     depends_on: [inventory_database, rabbitmq, redis]
 
   recommendation-service:
