@@ -34,7 +34,7 @@ export class InventoryController {
       this.logger.error('Failed to fetch inventory items', error);
       res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .send({ message: 'Internal server error' });
+        .send({ message: 'Internal server error', data: null });
     }
   }
 
@@ -52,14 +52,15 @@ export class InventoryController {
       });
     } catch (error) {
       if (error.message === 'Item with SKU does not exist') {
-        res
-          .status(HttpStatus.NOT_FOUND)
-          .send({ message: `Item with SKU ${params.sku} does not exist` });
+        res.status(HttpStatus.NOT_FOUND).send({
+          message: `Item with SKU ${params.sku} does not exist`,
+          data: null,
+        });
       } else {
         this.logger.error('Failed to fetch inventory item', error);
         res
           .status(HttpStatus.INTERNAL_SERVER_ERROR)
-          .send({ message: 'Internal server error' });
+          .send({ message: 'Internal server error', data: null });
       }
     }
   }
@@ -79,14 +80,15 @@ export class InventoryController {
       });
     } catch (error) {
       if (error.message === 'Item with SKU already exists') {
-        res
-          .status(HttpStatus.NOT_FOUND)
-          .send({ message: `Item with SKU ${payload.sku} already exists` });
+        res.status(HttpStatus.NOT_FOUND).send({
+          message: `Item with SKU ${payload.sku} already exists`,
+          data: null,
+        });
       } else {
         this.logger.error('Failed to create inventory item', error);
         res
           .status(HttpStatus.INTERNAL_SERVER_ERROR)
-          .send({ message: 'Internal server error' });
+          .send({ message: 'Internal server error', data: null });
       }
     }
   }
@@ -111,14 +113,15 @@ export class InventoryController {
       });
     } catch (error) {
       if (error.message === 'Item with SKU does not exist') {
-        res
-          .status(HttpStatus.NOT_FOUND)
-          .send({ message: `Item with SKU ${params.sku} does not exist` });
+        res.status(HttpStatus.NOT_FOUND).send({
+          message: `Item with SKU ${params.sku} does not exist`,
+          data: null,
+        });
       } else {
         this.logger.error('Failed to update inventory item', error);
         res
           .status(HttpStatus.INTERNAL_SERVER_ERROR)
-          .send({ message: 'Internal server error' });
+          .send({ message: 'Internal server error', data: null });
       }
     }
   }
@@ -137,14 +140,15 @@ export class InventoryController {
       });
     } catch (error) {
       if (error.message === 'Item with SKU does not exist') {
-        res
-          .status(HttpStatus.NOT_FOUND)
-          .send({ message: `Item with SKU ${params.sku} does not exist` });
+        res.status(HttpStatus.NOT_FOUND).send({
+          message: `Item with SKU ${params.sku} does not exist`,
+          data: null,
+        });
       } else {
         this.logger.error('Failed to delete inventory item', error);
         res
           .status(HttpStatus.INTERNAL_SERVER_ERROR)
-          .send({ message: 'Internal server error' });
+          .send({ message: 'Internal server error', data: null });
       }
     }
   }
