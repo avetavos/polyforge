@@ -122,8 +122,21 @@ nx databases infra       # Start only databases
 ```bash
 cd services/order-service
 pip install -r requirements.txt
-uvicorn app.main:app --reload --port 8000
+
+# Run database migrations
+alembic upgrade head
+
+# Start development server
+uvicorn main:app --reload --port 8000
 ```
+
+**Features Implemented**:
+- Order CRUD operations with PostgreSQL
+- Database health checks
+- Role-based access control (admin vs user)
+- Proper HTTP status codes and error handling
+- SQLAlchemy ORM with Alembic migrations
+- Consistent API response format
 
 #### Catalog Service (Rust/Axum)
 ```bash
@@ -158,20 +171,44 @@ python -m app.main
 | Recommendation Service | 5000 | http://localhost:5000 | Recommendation API |
 | RabbitMQ | 15672 | http://localhost:15672 | RabbitMQ Management UI |
 
+### Order Service API Endpoints
+
+| Method | Endpoint | Description | Headers Required |
+|--------|----------|-------------|------------------|
+| GET | `/` | Health check (service + database status) | None |
+| GET | `/orders` | Get all orders (admin) or user's orders | `x-user-id`, `x-user-role` |
+| GET | `/orders/{order_id}` | Get specific order by ID | `x-user-id`, `x-user-role` |
+| POST | `/orders` | Create a new order | `x-user-id` |
+| PATCH | `/orders/{order_id}` | Cancel an order | `x-user-id` |
+
+**Response Format**: All endpoints return a consistent response structure:
+```json
+{
+  "message": "Operation result message",
+  "data": "Response data or null"
+}
+```
+
+**Order Status**: `PENDING`, `CONFIRMED`, `CANCELLED`
+
 ## 🗄️ Database Configuration
 
 ### PostgreSQL Databases
-- **Order Database**: Port 5432
-- **Inventory Database**: Port 5433
-- **Kong Database**: Port 5434
+- **Order Database**: Port 5432 (configurable via `ORDER_DB_PORT`)
+- **Inventory Database**: Port 5433 (configurable via `INVENTORY_DB_PORT`)
 
 ### MongoDB Databases
-- **Catalog Database**: Port 27017
-- **Recommendation Database**: Port 27018
+- **Catalog Database**: Port 27017 (configurable via `CATALOG_DB_PORT`)
+- **Recommendation Database**: Port 27018 (configurable via `RECOMMENDATION_DB_PORT`)
 
 ### Other Services
-- **Redis**: Port 6379
-- **RabbitMQ**: Port 5672
+- **Redis**: Port 6379 (configurable via `REDIS_PORT`)
+- **RabbitMQ**: Port 5672 (AMQP), Port 15672 (Management UI)
+
+### Health Checks
+All services include health check endpoints:
+- **Order Service**: `GET /` - Returns service and database status
+- **Database Health**: PostgreSQL and MongoDB health checks included in service responses
 
 ## 🔐 Security Features
 
@@ -182,9 +219,12 @@ python -m app.main
 
 ## 📊 Monitoring & Observability
 
-- **Kong Admin API**: Monitor API gateway metrics and health
+- **Kong Admin API**: Monitor API gateway metrics and health at http://localhost:8001
 - **Service Health Checks**: Built-in health endpoints for all services
-- **Container Health Checks**: Docker-based health monitoring
+  - Order Service: `GET /` returns `{"service": "UP", "database": "UP/DOWN"}`
+- **Container Health Checks**: Docker-based health monitoring for infrastructure
+- **RabbitMQ Management**: Web UI available at http://localhost:15672
+- **Database Health**: Automatic database connectivity checks in service health endpoints
 
 ## 🧪 Testing
 
@@ -198,7 +238,54 @@ nx test order-service
 
 ## 📝 Environment Variables
 
-Copy `.env.example` to `.env` and configure
+Copy `.env.example` to `.env` and configure:
+
+### Database Configuration
+```bash
+# Order Service Database
+ORDER_DB_USER=order_user
+ORDER_DB_PASSWORD=order_password
+ORDER_DB_NAME=order_db
+ORDER_DB_PORT=5432
+
+# Inventory Service Database  
+INVENTORY_DB_USER=inventory_user
+INVENTORY_DB_PASSWORD=inventory_password
+INVENTORY_DB_NAME=inventory_db
+INVENTORY_DB_PORT=5433
+
+# Catalog Service Database
+CATALOG_DB_USER=catalog_user
+CATALOG_DB_PASSWORD=catalog_password
+CATALOG_DB_PORT=27017
+
+# Recommendation Service Database
+RECOMMENDATION_DB_USER=recommendation_user
+RECOMMENDATION_DB_PASSWORD=recommendation_password
+RECOMMENDATION_DB_PORT=27018
+```
+
+### Infrastructure Services
+```bash
+# Redis
+REDIS_PORT=6379
+
+# RabbitMQ
+RABBITMQ_USER=rabbitmq_user
+RABBITMQ_PASSWORD=rabbitmq_password
+RABBITMQ_PORT=5672
+RABBITMQ_MANAGEMENT_PORT=15672
+
+# Kong API Gateway
+KONG_PORT=8000
+KONG_ADMIN_PORT=8001
+KONG_DB_USER=kong_user
+KONG_DB_PASSWORD=kong_password
+KONG_DB_NAME=kong_db
+KONG_PG_USER=kong_user
+KONG_PG_PASSWORD=kong_password
+KONG_PG_DATABASE=kong_db
+```
 
 ## 🚀 Deployment
 
@@ -228,14 +315,31 @@ For production deployment, consider:
 
 ## 📋 Roadmap
 
+### ✅ Completed
+- [x] Basic infrastructure setup with Docker Compose
+- [x] Kong API Gateway with custom plugins (OIDC, Role Checker)
+- [x] Order Service with full CRUD operations
+- [x] Database migration system (Alembic)
+- [x] Health check endpoints
+- [x] Role-based access control
+- [x] Consistent API response format
+- [x] Nx monorepo build system
+
+### 🚧 In Progress
+- [ ] Catalog Service (Rust/Axum) implementation
+- [ ] Inventory Service (Node.js/NestJS) implementation
+- [ ] Recommendation Service (Python/FastAPI) implementation
+
+### 📅 Planned
 - [ ] Add comprehensive test suites
 - [ ] Implement circuit breakers
 - [ ] Add distributed tracing
-- [ ] Implement event sourcing
+- [ ] Implement event sourcing with RabbitMQ
 - [ ] Add GraphQL API gateway
 - [ ] Kubernetes deployment manifests
 - [ ] CI/CD pipeline setup
 - [ ] Performance benchmarking
+- [ ] OpenAPI documentation integration
 
 ## 📄 License
 
