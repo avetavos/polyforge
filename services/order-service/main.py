@@ -1,5 +1,4 @@
 from fastapi import Depends, FastAPI
-from regex import B
 from sqlalchemy.orm import Session
 from sqlalchemy import text
 from api.deps import get_db
