@@ -16,7 +16,7 @@ class Order(Base):
     __tablename__ = "orders"
 
     id = Column(String, primary_key=True, index=True, default=lambda: str(uuid.uuid4()))
-    customer_id = Column(String, index=True)
+    customer_id = Column(String, index=True, nullable=False)
     status = Column(SQLEnum(OrderStatus), default=OrderStatus.PENDING)
     created_at = Column(DateTime, default=datetime.now(tz=timezone.utc))
     updated_at = Column(DateTime, onupdate=datetime.now(tz=timezone.utc))

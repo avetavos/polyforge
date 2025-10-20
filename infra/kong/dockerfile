@@ -18,7 +18,7 @@ RUN git clone https://github.com/revomatico/kong-oidc.git /tmp/kong-oidc && \
     cd /tmp/kong-oidc && \
     luarocks make
 
-COPY plugins/roles-checker /usr/local/share/lua/5.1/kong/plugins/roles-checker
+COPY plugins /usr/local/share/lua/5.1/kong/plugins
 
 RUN rm -rf /tmp/kong-oidc
 

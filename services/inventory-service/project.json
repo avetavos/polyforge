@@ -6,7 +6,7 @@
     "build": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "docker build -t polyforge-inventory:1.0 .",
+        "command": "docker build -t polyforge-inventory:1.2 .",
         "cwd": "services/inventory-service"
       }
     },
@@ -27,7 +27,7 @@
     "serve-docker": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "docker run -p 4000:4000 polyforge-inventory:1.0"
+        "command": "docker run -p 8000:8000 polyforge-inventory:1.2"
       }
     }
   },

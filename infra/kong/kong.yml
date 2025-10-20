@@ -1,0 +1,229 @@
+_format_version: '3.0'
+_transform: true
+
+services:
+  ##################
+  # Health Checks  #
+  ##################
+  - name: 'order-health'
+    url: 'http://order-service:8000'
+    plugins: []
+    routes:
+      - name: 'order-health-check'
+        methods:
+          - GET
+        paths:
+          - '/health/orders'
+        strip_path: true
+
+  - name: 'inventory-health'
+    url: 'http://inventory-service:8000'
+    plugins: []
+    routes:
+      - name: 'inventory-health-check'
+        methods:
+          - GET
+        paths:
+          - '/health/inventory'
+        strip_path: true
+
+  - name: 'catalog-health'
+    url: 'http://catalog-service:8000'
+    plugins: []
+    routes:
+      - name: 'catalog-health-check'
+        methods:
+          - GET
+        paths:
+          - '/health/catalog'
+        strip_path: true
+
+  - name: 'recommendation-health'
+    url: 'http://recommendation-service:8000'
+    plugins: []
+    routes:
+      - name: 'recommendation-health-check'
+        methods:
+          - GET
+        paths:
+          - '/health/recommendation'
+        strip_path: true
+  
+  ############################
+  # Authentication Service   #
+  ############################
+  - name: 'keycloak'
+    url: 'http://keycloak:8080'
+    routes:
+      - name: login
+        paths:
+            - /auth/login
+        methods: 
+          - POST
+        strip_path: false
+        plugins:
+          - name: keycloak-request-transformer
+            config:
+              client_id: polyforge
+              client_secret: DE4hxSxAX36JJaGz4uuls765EUcwLNiS
+              type: login
+          - name: request-transformer
+            config:
+              replace:
+                uri: /realms/polyforge/protocol/openid-connect/token
+      - name: refresh-token
+        paths:
+            - /auth/refresh-token
+        methods: 
+          - POST
+        strip_path: false
+        plugins:
+          - name: keycloak-request-transformer
+            config:
+              client_id: polyforge
+              client_secret: DE4hxSxAX36JJaGz4uuls765EUcwLNiS
+              type: refresh_token
+          - name: request-transformer
+            config:
+              replace:
+                uri: /realms/polyforge/protocol/openid-connect/token
+      - name: logout
+        paths:
+            - /auth/logout
+        methods: 
+          - POST
+        strip_path: true
+        plugins:
+          - name: keycloak-request-transformer
+            config:
+              client_id: polyforge
+              client_secret: DE4hxSxAX36JJaGz4uuls765EUcwLNiS
+              type: logout
+          - name: request-transformer
+            config:
+              replace:
+                uri: /realms/polyforge/protocol/openid-connect/revoke
+
+  ##################
+  # Order Service  #
+  ##################
+  - name: 'order-service'
+    url: 'http://order-service:8000'
+    plugins:
+      - name: oidc
+        config:
+          client_id: polyforge
+          client_secret: DE4hxSxAX36JJaGz4uuls765EUcwLNiS
+          discovery: http://keycloak:8080/realms/polyforge/.well-known/openid-configuration
+          scope: openid profile email
+          bearer_only: 'yes'
+          ssl_verify: 'yes'
+          use_jwks: 'yes'
+          bearer_jwt_auth_enable: 'yes'
+          bearer_jwt_auth_signing_algs: 
+            - RS256
+          introspection_endpoint: http://keycloak:8080/realms/polyforge/protocol/openid-connect/token/introspect
+      - name: transform-headers
+    routes:
+      - name: 'get-all-orders'
+        methods:
+          - GET
+        paths:
+          - '/orders'
+        strip_path: false
+        plugins:
+          - name: roles-checker
+            config:
+              required_roles:
+                - customer
+                - administrator
+      - name: 'get-order-by-id'
+        methods:
+          - GET
+        paths:
+          - ~/orders/[^/]+$
+        strip_path: false
+        plugins:
+          - name: roles-checker
+            config:
+              required_roles:
+                - customer
+                - administrator
+      - name: 'create-order'
+        methods:
+          - POST
+        paths:
+          - '/orders'
+        strip_path: false
+        plugins:
+          - name: roles-checker
+            config:
+              required_roles:
+                - customer
+      - name: 'cancel-order'
+        methods:
+          - PATCH
+        paths:
+          - ~/orders/[^/]+$
+        strip_path: false
+        plugins:
+          - name: roles-checker
+            config:
+              required_roles:
+                - customer
+
+  #####################
+  # Inventory Service #
+  #####################
+  - name: 'inventory-service'
+    url: 'http://inventory-service:8000'
+    plugins:
+      - name: oidc
+        config:
+          client_id: polyforge
+          client_secret: DE4hxSxAX36JJaGz4uuls765EUcwLNiS
+          discovery: http://keycloak:8080/realms/polyforge/.well-known/openid-configuration
+          scope: openid profile email
+          bearer_only: 'yes'
+          ssl_verify: 'yes'
+          use_jwks: 'yes'
+          bearer_jwt_auth_enable: 'yes'
+          bearer_jwt_auth_signing_algs: 
+            - RS256
+          introspection_endpoint: http://keycloak:8080/realms/polyforge/protocol/openid-connect/token/introspect
+      - name: transform-headers
+      - name: roles-checker
+        config:
+          required_roles:
+            - administrator
+    routes:
+      - name: 'get-all-inventory-items'
+        methods:
+          - GET
+        paths:
+          - '/inventory'
+        strip_path: false
+      - name: 'get-inventory-item-by-sku'
+        methods:
+          - GET
+        paths:
+          - ~/inventory/[^/]+$
+        strip_path: false
+      - name: 'add-inventory-item'
+        methods:
+          - POST
+        paths:
+          - '/inventory'
+        strip_path: false
+      - name: 'update-inventory-item-quantity'
+        methods:
+          - PATCH
+        paths:
+          - ~/inventory/[^/]+$/quantity
+        strip_path: false
+      - name: 'delete-inventory-item'
+        methods:
+          - DELETE
+        paths:
+          - ~/inventory/[^/]+$
+        strip_path: false
