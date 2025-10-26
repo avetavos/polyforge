@@ -21,7 +21,21 @@ function TransformHeaders:access()
   end
 
   if claims.realm_access and claims.realm_access.roles then
-    kong.service.request.set_header("X-User-Roles", claims.realm_access.roles)
+    local isAdministrator = false
+    for _, role in ipairs(claims.realm_access.roles) do
+      if role == "administrator" then
+        isAdministrator = true
+        break
+      end
+    end
+
+    if isAdministrator then
+      kong.service.request.set_header("X-User-Role", "administrator")
+      return
+    else
+      kong.service.request.set_header("X-User-Role", "customer")
+      return
+    end
   end
 end
 
