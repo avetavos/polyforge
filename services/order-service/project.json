@@ -6,7 +6,7 @@
     "build": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "docker build --no-cache -t polyforge-order:1.1 .",
+        "command": "docker build --no-cache -t polyforge-order:1.3 .",
         "cwd": "services/order-service"
       }
     },
@@ -20,7 +20,7 @@
     "serve-docker": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "docker run -p 8000:8000 polyforge-order:1.1"
+        "command": "docker run -p 8000:8000 polyforge-order:1.3"
       }
     },
     "migrate": {

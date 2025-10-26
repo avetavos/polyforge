@@ -129,7 +129,7 @@ services:
     depends_on: [catalog_database, rabbitmq, redis]
 
   order-service:
-    image: polyforge-order:1.1
+    image: polyforge-order:1.3
     environment:
       DATABASE_URL: postgresql://${ORDER_DB_USER}:${ORDER_DB_PASSWORD}@order_database:5432/${ORDER_DB_NAME}
     depends_on: [order_database, rabbitmq, redis]
