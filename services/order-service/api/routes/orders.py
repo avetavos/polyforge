@@ -2,20 +2,20 @@ from sqlalchemy.orm import Session
 from api.deps import get_db
 from models.order import Order, CreatedOrderResponse
 from fastapi import APIRouter, Depends, HTTPException, Header, status
-from api.services.order import cancel_order, create_order, get_order_by_id, get_all_orders
+from api.services.orders import cancel_order, create_order, get_order_by_id, get_all_orders
 from models.response import BaseResponseModel
 from fastapi.responses import JSONResponse
 
 router = APIRouter()
 
-@router.get("/", response_model=BaseResponseModel[list[CreatedOrderResponse]])
+@router.get("", response_model=BaseResponseModel[list[CreatedOrderResponse]])
 def get_all_orders_handler(
-    x_user_id: str = Header(None),
-    x_user_role: str = Header(None),
+    x_user_id: str = Header(),
+    x_user_role: str = Header(),
     db: Session = Depends(get_db)
 ):
     try:
-        user_id = None if x_user_role == "admin" else x_user_id
+        user_id = None if x_user_role == "administrator" else x_user_id
         data = get_all_orders(user_id, db)
         return BaseResponseModel[list[CreatedOrderResponse]](
             message="Orders fetched successfully",
@@ -30,15 +30,15 @@ def get_all_orders_handler(
             ).model_dump()
         )
 
-@router.get("/{order_id}", response_model=BaseResponseModel[CreatedOrderResponse])
+@router.get("{order_id}", response_model=BaseResponseModel[CreatedOrderResponse])
 def get_order_by_id_handler(
     order_id: str,
-    x_user_id: str = Header(None),
-    x_user_role: str = Header(None),
+    x_user_id: str = Header(),
+    x_user_role: str = Header(),
     db: Session = Depends(get_db)
 ):
     try:
-        user_id = None if x_user_role == "admin" else x_user_id
+        user_id = None if x_user_role == "administrator" else x_user_id
         data = get_order_by_id(order_id, user_id, db)
         
         if data:
@@ -67,10 +67,10 @@ def get_order_by_id_handler(
             ).model_dump()
         )
 
-@router.post("/", response_model=BaseResponseModel[CreatedOrderResponse], status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=BaseResponseModel[CreatedOrderResponse], status_code=status.HTTP_201_CREATED)
 def create_order_handler(
     payload: Order,
-    x_user_id: str = Header(None),
+    x_user_id: str = Header(),
     db: Session = Depends(get_db)
 ):
     try:
@@ -88,10 +88,10 @@ def create_order_handler(
             ).model_dump()
         )
 
-@router.patch("/{order_id}")
+@router.patch("{order_id}")
 def cancel_order_handler(
     order_id: str,
-    x_user_id: str = Header(None),
+    x_user_id: str = Header(),
     db: Session = Depends(get_db)
 ):
     try:

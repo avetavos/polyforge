@@ -42,7 +42,7 @@ def get_order_by_id(order_id: str, user_id: Optional[str], db: Session) -> Optio
         if user_id:
             order = db.query(OrderDB).filter(OrderDB.id == order_id, OrderDB.customer_id == user_id).first()
             
-            if order:
+            if order is not None:
                 order.items = db.query(OrderItemDB).filter(OrderItemDB.order_id == order.id).all()
             else:
                 return None
@@ -65,7 +65,7 @@ def get_order_by_id(order_id: str, user_id: Optional[str], db: Session) -> Optio
 
 def get_all_orders(user_id: Optional[str], db: Session) -> list[OrderDB]:
     try:
-        if user_id:
+        if user_id is not None:
             orders = db.query(OrderDB).filter(OrderDB.customer_id == user_id).all()
             
             for order in orders:
@@ -92,7 +92,7 @@ def cancel_order(order_id: str, user_id: str, db: Session) -> Optional[OrderDB]:
             OrderDB.status == OrderStatus.PENDING
         ).first()
         
-        if order:
+        if order is not None:
             order.status = OrderStatus.CANCELLED # type: ignore
             db.commit()
             db.refresh(order)
