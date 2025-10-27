@@ -6,7 +6,7 @@
     "build": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "docker build -t polyforge-recommendation:1.0 .",
+        "command": "docker build --no-cache -t polyforge-recommendation:1.1 .",
         "cwd": "services/recommendation-service"
       }
     },
@@ -27,7 +27,7 @@
     "serve-docker": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "docker run -p 5000:5000 polyforge-recommendation:1.0"
+        "command": "docker run -p 5000:5000 polyforge-recommendation:1.1"
       }
     }
   },

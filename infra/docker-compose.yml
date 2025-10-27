@@ -47,11 +47,16 @@ services:
       - recommendation_data:/data/db
 
   redis:
-    image: redis:7
+    image: redis:latest
     ports: 
       - "${REDIS_PORT}:6379"
+    command: redis-server --appendonly yes --notify-keyspace-events "" --client-output-buffer-limit normal 0 0 0
     volumes:
       - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 3s
 
   rabbitmq:
     image: rabbitmq:3-management
@@ -121,7 +126,16 @@ services:
     depends_on: [inventory_database, rabbitmq, redis]
 
   recommendation-service:
-    image: polyforge-recommendation:1.0
+    image: polyforge-recommendation:1.1
+    environment:
+      DB_HOST: recommendation_database
+      DB_PORT: 27017
+      DB_USER: ${RECOMMENDATION_DB_USER}
+      DB_PASSWORD: ${RECOMMENDATION_DB_PASSWORD}
+      DB_NAME: ${RECOMMENDATION_DB_NAME}
+      CACHE_HOST: redis
+      CACHE_PORT: 6379
+      CACHE_PREFIX: ${RECOMMENDATION_CACHE_PREFIX}
     depends_on: [recommendation_database, rabbitmq, redis]
 
   catalog-service:

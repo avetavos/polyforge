@@ -227,3 +227,81 @@ services:
         paths:
           - ~/inventory/[^/]+$
         strip_path: false
+
+  ##########################
+  # Recommendation Service #
+  ##########################
+  - name: 'recommendation-service'
+    url: 'http://recommendation-service:8000'
+    plugins:
+      - name: transform-headers
+      - name: oidc
+        config:
+          client_id: polyforge
+          client_secret: DE4hxSxAX36JJaGz4uuls765EUcwLNiS
+          discovery: http://keycloak:8080/realms/polyforge/.well-known/openid-configuration
+          scope: openid profile email
+          bearer_only: 'yes'
+          ssl_verify: 'yes'
+          use_jwks: 'yes'
+          bearer_jwt_auth_enable: 'yes'
+          bearer_jwt_auth_signing_algs: 
+            - RS256
+          introspection_endpoint: http://keycloak:8080/realms/polyforge/protocol/openid-connect/token/introspect
+    routes:
+      - name: 'get-recommendations'
+        methods:
+          - GET
+        paths:
+          - '/recommendations'
+        strip_path: false
+        plugins:
+          - name: roles-checker
+            config:
+              required_roles:
+                - customer
+      - name: 'get-recommendations-trending'
+        methods:
+          - GET
+        paths:
+          - '/recommendations/trending'
+        strip_path: false
+        plugins:
+          - name: roles-checker
+            config:
+              required_roles:
+                - customer
+                - administrator
+      - name: 'rebuild-recommendations'
+        methods:
+          - POST
+        paths:
+          - '/recommendations/rebuild'
+        strip_path: false
+        plugins:
+          - name: roles-checker
+            config:
+              required_roles:
+                - administrator
+      - name: 'get-user-recommendations'
+        methods:
+          - GET
+        paths:
+          - ~/recommendations/[^/]+$
+        strip_path: false
+        plugins:
+          - name: roles-checker
+            config:
+              required_roles:
+                - administrator
+      - name: 'event-recommendations'
+        methods:
+          - POST
+        paths:
+          - /recommendations/event
+        strip_path: false
+        plugins:
+          - name: roles-checker
+            config:
+              required_roles:
+                - customer
