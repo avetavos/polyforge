@@ -54,6 +54,20 @@ services:
   ############################
   - name: 'keycloak'
     url: 'http://keycloak:8080'
+    plugins:
+      - name: response-transformer
+        config:
+          rename:
+            json:
+              - 'access_token:accessToken'
+              - 'expires_in:expiresIn'
+              - 'refresh_expires_in:refreshExpiresIn'
+              - 'refresh_token:refreshToken'
+              - 'token_type:tokenType'
+              - 'id_token:idToken'
+              - 'not-before-policy:notBeforePolicy'
+              - 'session_state:sessionState'
+              - 'error_description:errorDescription'
     routes:
       - name: login
         paths:

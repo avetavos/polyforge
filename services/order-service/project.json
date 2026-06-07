@@ -52,6 +52,20 @@
           "DATABASE_URL": ""
         }
       }
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "pytest",
+        "cwd": "services/order-service"
+      }
+    },
+    "lint": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "ruff check .",
+        "cwd": "services/order-service"
+      }
     }
   },
   "tags": ["service", "python", "fastapi"]
