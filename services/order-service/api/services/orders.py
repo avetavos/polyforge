@@ -1,110 +1,73 @@
-from typing import Optional
 import logging
-from sqlalchemy.orm import Session
+from typing import Optional
+
+from sqlalchemy.orm import Session, selectinload
+
+from core.exceptions import OrderNotCancellableError, OrderNotFoundError
 from models.order import Order as OrderPayload
-from schemas.order import Order as OrderDB, OrderStatus
+from schemas.order import Order as OrderDB
+from schemas.order import OrderStatus
 from schemas.order_item import OrderItem as OrderItemDB
 
 logger = logging.getLogger(__name__)
 
-def create_order(order: OrderPayload, user_id: str, db: Session) -> OrderDB:
+
+def create_order(payload: OrderPayload, customer_id: str, db: Session) -> OrderDB:
     try:
-        db_order = OrderDB(
-            status=OrderStatus.PENDING,
-            customer_id=user_id
-        )
-        db.add(db_order)
-        db.flush()
-        
-        items = []
-        
-        for item in order.items:
-            db_order_item = OrderItemDB(
-                order_id=db_order.id,
-                sku=item.sku,
-                qty=item.qty
-            )
-            db.add(db_order_item)
-            items.append(db_order_item)
-        
+        order = OrderDB(status=OrderStatus.PENDING, customer_id=customer_id)
+        order.items = [OrderItemDB(sku=item.sku, qty=item.qty) for item in payload.items]
+        db.add(order)
         db.commit()
-        db.refresh(db_order)
-        
-        return db_order
-        
-    except Exception as e:
-        logger.error(f"Error creating order for user {user_id}: {str(e)}")
+        db.refresh(order)
+        return order
+    except Exception:
         db.rollback()
-        raise e
+        logger.exception("Error creating order for customer %s", customer_id)
+        raise
 
-def get_order_by_id(order_id: str, user_id: Optional[str], db: Session) -> Optional[OrderDB]:
+
+def get_order(order_id: str, customer_id: Optional[str], db: Session) -> OrderDB:
+    query = (
+        db.query(OrderDB).options(selectinload(OrderDB.items)).filter(OrderDB.id == order_id)
+    )
+    if customer_id is not None:
+        query = query.filter(OrderDB.customer_id == customer_id)
+
+    order = query.first()
+    if order is None:
+        raise OrderNotFoundError(order_id)
+    return order
+
+
+def list_orders(customer_id: Optional[str], db: Session) -> list[OrderDB]:
+    query = db.query(OrderDB).options(selectinload(OrderDB.items))
+    if customer_id is not None:
+        query = query.filter(OrderDB.customer_id == customer_id)
+    return query.all()
+
+
+def cancel_order(order_id: str, customer_id: str, db: Session) -> OrderDB:
     try:
-        if user_id:
-            order = db.query(OrderDB).filter(OrderDB.id == order_id, OrderDB.customer_id == user_id).first()
-            
-            if order is not None:
-                order.items = db.query(OrderItemDB).filter(OrderItemDB.order_id == order.id).all()
-            else:
-                return None
-            
-            return order
-        
-        else:
-            order = db.query(OrderDB).filter(OrderDB.id == order_id).first()
-            
-            if order:
-                order.items = db.query(OrderItemDB).filter(OrderItemDB.order_id == order.id).all()
-            else:
-                return None
-            
-            return order
+        order = (
+            db.query(OrderDB)
+            .options(selectinload(OrderDB.items))
+            .filter(
+                OrderDB.id == order_id,
+                OrderDB.customer_id == customer_id,
+                OrderDB.status == OrderStatus.PENDING,
+            )
+            .first()
+        )
+        if order is None:
+            raise OrderNotCancellableError(order_id)
 
-    except Exception as e:
-        logger.error(f"Error getting order {order_id} for user {user_id}: {str(e)}")
-        raise e
-
-def get_all_orders(user_id: Optional[str], db: Session) -> list[OrderDB]:
-    try:
-        if user_id is not None:
-            orders = db.query(OrderDB).filter(OrderDB.customer_id == user_id).all()
-            
-            for order in orders:
-                order.items = db.query(OrderItemDB).filter(OrderItemDB.order_id == order.id).all()
-            
-            return orders
-        
-        else:
-            orders = db.query(OrderDB).all()
-            
-            for order in orders:
-                order.items = db.query(OrderItemDB).filter(OrderItemDB.order_id == order.id).all()
-            
-            return orders
-    except Exception as e:
-        logger.error(f"Error getting all orders for user {user_id}: {str(e)}")
-        raise e
-
-def cancel_order(order_id: str, user_id: str, db: Session) -> Optional[OrderDB]:
-    try:
-        order = db.query(OrderDB).filter(
-            OrderDB.id == order_id, 
-            OrderDB.customer_id == user_id,
-            OrderDB.status == OrderStatus.PENDING
-        ).first()
-        
-        if order is not None:
-            order.status = OrderStatus.CANCELLED # type: ignore
-            db.commit()
-            db.refresh(order)
-            
-            order.items = db.query(OrderItemDB).filter(OrderItemDB.order_id == order.id).all()
-            
-            return order
-        
-        else:
-            raise ValueError("Order not found or cannot be cancelled")
-        
-    except Exception as e:
-        logger.error(f"Error cancelling order {order_id} for user {user_id}: {str(e)}")
+        order.status = OrderStatus.CANCELLED
+        db.commit()
+        db.refresh(order)
+        return order
+    except OrderNotCancellableError:
+        raise
+    except Exception:
         db.rollback()
-        raise e
+        logger.exception("Error cancelling order %s for customer %s", order_id, customer_id)
+        raise
