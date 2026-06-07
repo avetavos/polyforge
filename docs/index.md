@@ -7,9 +7,11 @@ Polyforge is a **polyglot microservices monorepo** (managed with [Nx](https://nx
 | Service | Language / Framework | Datastore | Default port | Responsibility |
 |---------|----------------------|-----------|--------------|----------------|
 | [Order](services/order-service.md) | Python / FastAPI | PostgreSQL | 8000 | Order lifecycle (create, list, cancel) |
-| [Inventory](services/inventory-service.md) | Node / NestJS | PostgreSQL | 4000 | Stock levels & inventory transaction log |
+| [Inventory](services/inventory-service.md) | Node / NestJS | PostgreSQL | 8000 | Stock levels & inventory transaction log |
 | [Catalog](services/catalog-service.md) | Rust / Axum | MongoDB | 3000 | Product catalog _(scaffolded, implementation pending)_ |
-| [Recommendation](services/recommendation-service.md) | Go / Fiber | MongoDB + Redis | 5000 | User activity tracking & product recommendations |
+| [Recommendation](services/recommendation-service.md) | Go / Fiber | MongoDB + Redis | 8000 | User activity tracking & product recommendations |
+
+Ports above are the port each service **binds** in its container (Order, Inventory, and Recommendation all listen on `8000`; Inventory honours a `PORT` override). Services are not published to the host directly — clients reach them through the Kong gateway.
 
 !!! note "Documentation is the source of truth here"
     The repository `README.md` lists the Recommendation Service as "Python/FastAPI" — the actual implementation is **Go (Fiber)**. These docs reflect the code as it exists in the repo. Where docs and README disagree, trust the docs (and please fix the README).

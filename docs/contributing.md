@@ -36,7 +36,7 @@ CI runs the same `--strict` build before deploying.
       Body text.
   ```
 
-- Prefer linking between pages with relative paths (e.g. `../database/index.md`).
+- Prefer linking between pages with relative paths (e.g. `database/index.md` from this page, or `../database/index.md` from a subdirectory page).
 - Keep docs **truthful to the code** — if you spot drift (like the recommendation-service language in the repo `README`), fix the docs and, ideally, the source.
 
 ## Deployment

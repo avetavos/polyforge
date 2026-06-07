@@ -7,7 +7,7 @@ Tracks stock levels per SKU and records every inventory movement in an append-on
 | **Language / framework** | Node · NestJS |
 | **Persistence** | PostgreSQL via Prisma |
 | **Location** | `services/inventory-service` |
-| **Default port** | 4000 |
+| **Default port** | 8000 (override via `PORT`) |
 
 ## Endpoints
 

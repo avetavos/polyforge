@@ -7,7 +7,7 @@ Records user interaction events and serves product recommendations (personalized
 | **Language / framework** | Go · Fiber |
 | **Persistence** | MongoDB (driver v2) + Redis cache |
 | **Location** | `services/recommendation-service` |
-| **Default port** | 5000 |
+| **Default port** | 8000 |
 
 !!! note "README drift"
     The repo `README` calls this service "Python/FastAPI". The actual implementation is **Go (Fiber)** — see `services/recommendation-service/go.mod` and `cmd/main.go`.
@@ -63,6 +63,6 @@ recommendation-service
 ```
 
 - **Flow:** clients (or other services) post interaction events to `/recommendations/event`; aggregates are computed (and can be rebuilt via `/recommendations/rebuild`) and served per-user or as trending.
-- **Caching:** Redis fronts recommendation reads (`CATALOG_CACHE_PREFIX`-style keying via config).
+- **Caching:** Redis fronts recommendation reads, keyed via the `CACHE_PREFIX` config (e.g. `recommendation_service`; set from `RECOMMENDATION_CACHE_PREFIX` in compose).
 
 See [recommendation flow](../business-logic/index.md#recommendations).
