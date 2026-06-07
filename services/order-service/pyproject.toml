@@ -1,0 +1,11 @@
+[tool.ruff]
+line-length = 100
+target-version = "py39"
+extend-exclude = ["env", "alembic"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "C4"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-v"
