@@ -27,9 +27,7 @@ def create_order(payload: OrderPayload, customer_id: str, db: Session) -> OrderD
 
 
 def get_order(order_id: str, customer_id: Optional[str], db: Session) -> OrderDB:
-    query = (
-        db.query(OrderDB).options(selectinload(OrderDB.items)).filter(OrderDB.id == order_id)
-    )
+    query = db.query(OrderDB).options(selectinload(OrderDB.items)).filter(OrderDB.id == order_id)
     if customer_id is not None:
         query = query.filter(OrderDB.customer_id == customer_id)
 
