@@ -109,6 +109,6 @@ HTTP (routes)  ──▶  Service (business rules + data access)  ──▶  ORM
 
 ---
 
-## 5. Open question for reviewer
-- **Repository layer:** the design deliberately omits it (KISS). If you'd prefer the stricter "no I/O in the service" separation, say so and I'll add a thin `api/repositories/orders.py`.
-- **Ruff:** want a `[tool.ruff]` config added to `pyproject.toml` for lint/format standardization, or leave tooling untouched?
+## 5. Resolved decisions (reviewer approved 2026-06-07)
+- **Repository layer:** **omitted** (KISS). Service keeps data access + light rules.
+- **Ruff:** **added.** `[tool.ruff]` lint + format config in `pyproject.toml`; `ruff` added to `requirements-dev.txt`. Code refactored to pass `ruff check`.
