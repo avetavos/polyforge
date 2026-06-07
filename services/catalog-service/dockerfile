@@ -1,27 +1,30 @@
-FROM rust:1.83 AS builder
+# Stage 1: Builder
+FROM rust:slim-buster AS builder
 
 WORKDIR /usr/src/app
 
+# Copy Cargo.toml and Cargo.lock first to leverage Docker cache for dependencies
 COPY Cargo.toml Cargo.lock ./
 
-RUN mkdir src && echo "fn main() {}" > src/main.rs
+# Build dependencies (if any) - this helps with caching
+RUN mkdir -p src && echo "fn main() {}" > src/main.rs && cargo build --release && rm -rf src
 
-RUN cargo build --release && rm -rf src
+# Copy the rest of the source code
+COPY . .
 
-COPY src ./src
-
+# Build the release binary
 RUN cargo build --release
 
-FROM debian:bookworm-slim
+# Stage 2: Runtime
+FROM debian:buster-slim
 
-RUN apt-get update && apt-get install -y \
-    ca-certificates \
-    && rm -rf /var/lib/apt/lists/*
+# Install any runtime dependencies if required (e.g., openssl, if your app needs it)
+# RUN apt-get update && apt-get install -y --no-install-recommends openssl && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /app
+WORKDIR /usr/local/bin
 
-COPY --from=builder /usr/src/app/target/release/catalog-service .
+# Copy the compiled binary from the builder stage
+COPY --from=builder /usr/src/app/target/release/<your_app_name> .
 
-EXPOSE 8000
-
+# Set the entrypoint for the container
 CMD ["./catalog-service"]
