@@ -30,3 +30,6 @@ sql-db-migrate:
 	npx prisma migrate deploy && \
 	cd ../order-service && \
 	alembic upgrade head
+
+keycloak-migrate:
+	ENV_FILE=.env ./infra/keycloak/migrate.sh

@@ -1,0 +1,14 @@
+{
+  "name": "infra",
+  "root": "infra",
+  "targets": {
+    "keycloak-migrate": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "./keycloak/migrate.sh",
+        "cwd": "infra"
+      }
+    }
+  },
+  "tags": ["infra"]
+}
