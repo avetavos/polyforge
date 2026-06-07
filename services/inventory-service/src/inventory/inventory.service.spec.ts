@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ConflictException, NotFoundException } from '@nestjs/common';
-import { InventoryTransactionType } from '@prisma/client';
+import { InventoryTransactionType, Prisma } from '@prisma/client';
 import { InventoryService } from './inventory.service';
 import { PrismaService } from '../prisma/prisma.service';
 
@@ -111,6 +111,22 @@ describe('InventoryService', () => {
         service.addItem('user-1', { sku: 'ABC', quantity: 3 }),
       ).rejects.toBeInstanceOf(ConflictException);
       expect(prisma.inventoryItem.create).not.toHaveBeenCalled();
+    });
+
+    it('maps a unique-constraint violation (P2002) to ConflictException', async () => {
+      // Pre-check passes (e.g. SKU is soft-deleted, or a concurrent create
+      // committed first), but the insert hits the unique constraint.
+      prisma.inventoryItem.findFirst.mockResolvedValue(null);
+      prisma.inventoryItem.create.mockRejectedValue(
+        new Prisma.PrismaClientKnownRequestError('Unique constraint failed', {
+          code: 'P2002',
+          clientVersion: 'test',
+        }),
+      );
+
+      await expect(
+        service.addItem('user-1', { sku: 'ABC', quantity: 3 }),
+      ).rejects.toBeInstanceOf(ConflictException);
     });
   });
 
