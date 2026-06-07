@@ -5,6 +5,7 @@ extend-exclude = ["env", "alembic"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "C4"]
+ignore = ["B008"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
