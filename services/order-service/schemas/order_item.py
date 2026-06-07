@@ -1,7 +1,9 @@
 import uuid
+
 from sqlalchemy import Column, ForeignKey, Integer, String
-from db.session import Base
 from sqlalchemy.orm import relationship
+
+from db.session import Base
 
 
 class OrderItem(Base):
