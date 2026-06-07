@@ -38,6 +38,7 @@ keycloak-migrate:
 # Run after the database containers are up (make dev-start-services). Idempotent.
 seed:
 	cd services/inventory-service && \
+	npm install && \
 	npx prisma migrate deploy && \
 	npx prisma db seed
 	cd scripts/seed && \

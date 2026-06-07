@@ -48,10 +48,11 @@ async function main(): Promise<void> {
 }
 
 main()
-  .catch((error) => {
-    console.error('❌ Inventory seed failed:', error);
-    process.exit(1);
-  })
   .finally(async () => {
     await prisma.$disconnect();
+  })
+  .catch((error) => {
+    // Runs after $disconnect so the client always closes cleanly, even on failure.
+    console.error('❌ Inventory seed failed:', error);
+    process.exit(1);
   });
