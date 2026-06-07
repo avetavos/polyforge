@@ -1,0 +1,13 @@
+{
+  "name": "polyforge-seed",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Development-only mock data seeders for polyforge services.",
+  "scripts": {
+    "seed:catalog": "node seed-catalog.mjs"
+  },
+  "dependencies": {
+    "mongodb": "^6.12.0"
+  }
+}
