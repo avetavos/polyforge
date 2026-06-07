@@ -29,6 +29,20 @@
       "options": {
         "command": "docker run -p 8000:8000 polyforge-inventory:1.2"
       }
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "npm test",
+        "cwd": "services/inventory-service"
+      }
+    },
+    "lint": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "npm run lint",
+        "cwd": "services/inventory-service"
+      }
     }
   },
   "tags": ["service", "nodejs", "nestjs"]
