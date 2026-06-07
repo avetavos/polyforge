@@ -34,8 +34,6 @@ sql-db-migrate:
 keycloak-migrate:
 	ENV_FILE=.env ./infra/keycloak/migrate.sh
 
-# Seed mock product data into the dev databases (catalog Mongo + inventory Postgres).
-# Run after the database containers are up (make dev-start-services). Idempotent.
 seed:
 	cd services/inventory-service && \
 	npm install && \
@@ -44,3 +42,10 @@ seed:
 	cd scripts/seed && \
 	npm install && \
 	npm run seed:catalog
+
+init-doc:
+	pip install mkdocs mkdocs-material
+	@test -f mkdocs.yml || mkdocs new .
+
+start-doc:
+	mkdocs serve
