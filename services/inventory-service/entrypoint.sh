@@ -1,21 +1,15 @@
 #!/bin/bash
 set -e
 
-echo "🔄 Running database migrations..."
+echo "🔄 Applying database migrations..."
 
-# Wait for database to be ready
-until alembic current > /dev/null 2>&1; do
+# Retry until the database is reachable and migrations apply cleanly.
+until npx prisma migrate deploy; do
   echo "⏳ Waiting for database to be ready..."
   sleep 2
 done
 
-# Run migrations
-echo "📝 Applying migrations..."
-npx prisma db migrate deploy
-
-# Check migration status
-echo "✅ Current migration:"
-npx prisma db status
+echo "✅ Migrations applied."
 
 echo "🚀 Starting application..."
 exec "$@"
